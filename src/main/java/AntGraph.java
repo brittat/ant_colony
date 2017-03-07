@@ -1,4 +1,5 @@
 import au.com.bytecode.opencsv.CSVReader;
+import javafx.util.Pair;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -10,7 +11,7 @@ import java.util.*;
  */
 public class AntGraph {
   /* Maps pairs of products to the number of times they occur together in orders */
-  private Map graphMap = new HashMap<String, Integer>();
+  private Map<Pair<String, String>, Integer> graphMap = new HashMap<Pair<String, String>, Integer>();
   /* Keeps track of which items have occurred and how many times */
   private Map<String, Integer> itemMap = new HashMap<String, Integer>();
 
@@ -21,7 +22,7 @@ public class AntGraph {
     readFile(fileName);
   }
 
-  public Map<String, Integer> getGraphMap() {
+  public Map<Pair<String, String>, Integer> getGraphMap() {
     return this.graphMap;
   }
 
@@ -74,7 +75,7 @@ public class AntGraph {
   }
 
   public void addToEdge(String firstItem, String secondItem) {
-    String edgeKey = GraphUtilities.getGraphKey(firstItem, secondItem);
+    Pair<String, String> edgeKey = GraphUtilities.getGraphKeyPair(firstItem, secondItem);
     Integer currentEdge = (Integer) graphMap.get(edgeKey);
     if (currentEdge == null) {
       graphMap.put(edgeKey, 1);
