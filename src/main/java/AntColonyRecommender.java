@@ -1,13 +1,17 @@
 import javafx.util.Pair;
+import javafx.util.converter.DoubleStringConverter;
 
 import java.util.*;
+
+import static java.util.Collections.max;
+import static java.util.Collections.sort;
 
 /**
  * Created by brittathornblom1 on 3/6/17.
  */
 public class AntColonyRecommender {
   private Comparator comparator;
-  private Map<String, Integer> graphMap;
+  private Map<Pair<String, String>, Integer> graphMap;
   private Map<String, Integer> itemMap;
 
   public AntColonyRecommender(Comparator comparator, AntGraph antGraph) {
@@ -19,24 +23,24 @@ public class AntColonyRecommender {
 
   public ArrayList recommend(List<String> currentCart, int numRecommend) {
     List<String> itemsToCheck = new ArrayList<String>(currentCart);
-    int edgeSum;
-    PriorityQueue<Pair<String, Integer>> priorityQueue = new PriorityQueue(numRecommend, this.comparator);
+    double edgeSum;
+    PriorityQueue<Pair<String, Double>> priorityQueue = new PriorityQueue(numRecommend, this.comparator);
     int addedItems = 0;
 
-    for (String item : itemMap.keySet()) {
+    for (String item : this.itemMap.keySet()) {
       if (itemsToCheck.contains(item)) {
         itemsToCheck.remove(item);
       } else {
-        edgeSum = getEdgeSum(graphMap, item, currentCart);
+        edgeSum = getEdgeSum(this.graphMap, item, currentCart);
 
         if (addedItems != numRecommend) {
-          priorityQueue.add(new Pair<String, Integer>(item, edgeSum));
+          priorityQueue.add(new Pair<String, Double>(item, edgeSum));
           addedItems ++;
         } else {
-          Integer lowestValue = priorityQueue.peek().getValue();
+          Double lowestValue = priorityQueue.peek().getValue();
           if (edgeSum > lowestValue) {
             priorityQueue.poll();
-            priorityQueue.add(new Pair<String, Integer>(item, edgeSum));
+            priorityQueue.add(new Pair<String, Double>(item, edgeSum));
           }
         }
       }
@@ -46,24 +50,24 @@ public class AntColonyRecommender {
 
   public ArrayList recommendMvp(List<String> currentCart, int numRecommend) {
     List<String> itemsToCheck = new ArrayList<String>(currentCart);
-    int edgeSum;
-    PriorityQueue<Pair<String, Integer>> priorityQueue = new PriorityQueue(numRecommend, this.comparator);
+    double edgeSum;
+    PriorityQueue<Pair<String, Double>> priorityQueue = new PriorityQueue(numRecommend, this.comparator);
     int addedItems = 0;
 
-    for (String item : itemMap.keySet()) {
+    for (String item : this.itemMap.keySet()) {
       if (itemsToCheck.contains(item)) {
         itemsToCheck.remove(item);
       } else {
-        edgeSum = (int) getWeightedEdgeSum(graphMap, item, currentCart);
+        edgeSum = getWeightedEdgeSum(item, currentCart);
 
         if (addedItems != numRecommend) {
-          priorityQueue.add(new Pair<String, Integer>(item, edgeSum));
+          priorityQueue.add(new Pair<String, Double>(item, edgeSum));
           addedItems ++;
         } else {
-          Integer lowestValue = priorityQueue.peek().getValue();
+          Double lowestValue = priorityQueue.peek().getValue();
           if (edgeSum > lowestValue) {
             priorityQueue.poll();
-            priorityQueue.add(new Pair<String, Integer>(item, edgeSum));
+            priorityQueue.add(new Pair<String, Double>(item, edgeSum));
           }
         }
       }
@@ -71,10 +75,66 @@ public class AntColonyRecommender {
     return new ArrayList(priorityQueue);
   }
 
-  public int getEdgeSum(Map<String, Integer> graphMap, String item, List<String> currentCart) {
+  public List<Pair<String, Double>> itemBasedRecommendations(List<String> currentCart, int numRecommend) {
+    Double edgeValue;
+    List<String> neighborhood;
+    List<Pair<String, Double>> recommendedList = new ArrayList<Pair<String, Double>>();
+    List<Pair<String, Double>> bestInNeighborhood = new ArrayList<Pair<String, Double>>();
+    PairDoubleComparator pairDoubleComparator = new PairDoubleComparator();
+
+    for (String item : currentCart) {
+      neighborhood = getItemNeighborhood(item);
+      bestInNeighborhood.clear();
+      for (String neighbor : neighborhood) {
+        Integer itemOccurrences = itemMap.get(neighbor);
+        if (itemOccurrences == null) {
+          itemOccurrences = 1;
+        }
+        edgeValue = (double) getEdgeValue(item, neighbor)/itemOccurrences;
+        if (edgeValue != null && !currentCart.contains(neighbor) && !recommendedList.contains(neighbor)) {
+          bestInNeighborhood.add(new Pair<String, Double>(neighbor, edgeValue));
+        }
+      }
+      if (!bestInNeighborhood.isEmpty()) {
+        Pair<String, Double> best = Collections.max(bestInNeighborhood, pairDoubleComparator);
+        recommendedList.add(best);
+      }
+    }
+
+    if (currentCart.size() < numRecommend) {
+      return fillOutRecommendationList(currentCart, numRecommend, recommendedList);
+    } else if (currentCart.size() > numRecommend) {
+      Collections.sort(recommendedList, pairDoubleComparator);
+      return recommendedList.subList(recommendedList.size()-numRecommend, recommendedList.size());
+    } else {
+      return recommendedList;
+    }
+  }
+
+  public List<Pair<String, Double>> fillOutRecommendationList(List<String> currentCart,
+                                                              int numRecommend,
+                                                              List<Pair<String, Double>> returnList) {
+    List<String> itemIds = new ArrayList<String>();
+    Iterator<Pair<String, Double>> recomIterator = returnList.iterator();
+    while (recomIterator.hasNext()) {
+      Pair<String, Double> currentPair = recomIterator.next();
+      itemIds.add(currentPair.getKey());
+    }
+
+    List<Pair<String, Double>> genRecommend = recommend(currentCart, numRecommend);
+    while (returnList.size() < numRecommend) {
+      Pair<String, Double> vanillaRecommended = genRecommend.remove(0);
+      if (!itemIds.contains(vanillaRecommended.getKey())) {
+        returnList.add(vanillaRecommended);
+      }
+    }
+    return returnList;
+  }
+
+  public int getEdgeSum(Map<Pair<String, String>, Integer> graphMap, String item, List<String> currentCart) {
     Integer edgeSum = 0;
     for (String cartItem : currentCart) {
-      String graphKey = GraphUtilities.getGraphKey(item, cartItem);
+      Pair<String, String> graphKey = GraphUtilities.getGraphKeyPair(item, cartItem);
       Integer edgeValue = graphMap.get(graphKey);
       if(edgeValue != null) {
         edgeSum += edgeValue;
@@ -83,19 +143,42 @@ public class AntColonyRecommender {
     return edgeSum;
   }
 
-  public double getWeightedEdgeSum(Map<String, Integer> graphMap, String item, List<String> currentCart) {
+  public double getWeightedEdgeSum(String item, List<String> currentCart) {
     double edgeSum = 0;
     for (String cartItem : currentCart) {
       Integer cartWeight = this.itemMap.get(cartItem);
       if (cartWeight == null) {
         cartWeight = 1;
       }
-      String graphKey = GraphUtilities.getGraphKey(item, cartItem);
-      Integer edgeValue = graphMap.get(graphKey);
+
+      Integer edgeValue = getEdgeValue(item, cartItem);
       if(edgeValue != null) {
         edgeSum += (double) edgeValue/cartWeight;
       }
     }
     return edgeSum;
+  }
+
+  public int getEdgeValue(String firstItem, String secondItem) {
+    Pair<String, String> graphKey = GraphUtilities.getGraphKeyPair(firstItem, secondItem);
+    Integer edgeValue = this.graphMap.get(graphKey);
+    if (edgeValue == null) {
+      return 0;
+    } else {
+      return edgeValue;
+    }
+  }
+
+  public List<String> getItemNeighborhood(String item) {
+    Set<Pair<String, String>> keys = this.graphMap.keySet();
+    List<String> neighbors = new ArrayList<String>();
+    for (Pair<String, String> key : keys) {
+      if (item.equals(key.getKey())) {
+        neighbors.add(key.getValue());
+      } else if (item.equals(key.getValue())) {
+        neighbors.add(key.getKey());
+      }
+    }
+    return neighbors;
   }
 }
