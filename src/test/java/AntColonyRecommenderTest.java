@@ -54,13 +54,14 @@ public class AntColonyRecommenderTest {
             "54674",
             "41586",
             "41983"));
-    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommend(currentCart, 5);
+    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommend(currentCart, 10);
     List<String> itemIds = new ArrayList<String>();
     Iterator<Pair<String, Integer>> recomIterator = recommendedList.iterator();
     while (recomIterator.hasNext()) {
       Pair<String, Integer> currentPair = recomIterator.next();
       itemIds.add(currentPair.getKey());
     }
+    System.out.println("Recommend vanilla cat lady");
     System.out.println(itemIds);
   }
 
@@ -79,13 +80,14 @@ public class AntColonyRecommenderTest {
             "54674",
             "41586",
             "41983"));
-    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommendMvp(currentCart, 5);
+    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommendMvp(currentCart, 10);
     List<String> itemIds = new ArrayList<String>();
     Iterator<Pair<String, Integer>> recomIterator = recommendedList.iterator();
     while (recomIterator.hasNext()) {
       Pair<String, Integer> currentPair = recomIterator.next();
       itemIds.add(currentPair.getKey());
     }
+    System.out.println("Recommend mvp based cat lady");
     System.out.println(itemIds);
   }
 
@@ -104,13 +106,14 @@ public class AntColonyRecommenderTest {
             "54674",
             "41586",
             "41983"));
-    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommend(currentCart, 5);
+    List<Pair<String, Double>> recommendedList = antColonyRecommender.itemBasedRecommendations(currentCart, 10);
     List<String> itemIds = new ArrayList<String>();
-    Iterator<Pair<String, Integer>> recomIterator = recommendedList.iterator();
+    Iterator<Pair<String, Double>> recomIterator = recommendedList.iterator();
     while (recomIterator.hasNext()) {
-      Pair<String, Integer> currentPair = recomIterator.next();
+      Pair<String, Double> currentPair = recomIterator.next();
       itemIds.add(currentPair.getKey());
     }
+    System.out.println("Recommend item based cat lady");
     System.out.println(itemIds);
   }
 
@@ -180,6 +183,60 @@ public class AntColonyRecommenderTest {
       itemIds.add(currentPair.getKey());
     }
     System.out.println("Recommend item based BBQ");
+    System.out.println(itemIds);
+  }
+
+  @Test
+  public void recommendUser() throws Exception {
+    AntGraph antGraph = new AntGraph("user_data.csv");
+    OccurrenceBasedPairComparator occurrenceBasedPairComparator = new OccurrenceBasedPairComparator(antGraph.getItemMap());
+    AntColonyRecommender antColonyRecommender = new AntColonyRecommender(occurrenceBasedPairComparator, antGraph);
+    List<String> currentCart = new ArrayList<String>(Arrays.asList(
+            "55330", "42584", "54505", "54059", "43526", "40481", "41100", "52697", "61291", "57084", "51398", "53079", "43708", "43655"));
+    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommend(currentCart, 10);
+    List<String> itemIds = new ArrayList<String>();
+    Iterator<Pair<String, Integer>> recomIterator = recommendedList.iterator();
+    while (recomIterator.hasNext()) {
+      Pair<String, Integer> currentPair = recomIterator.next();
+      itemIds.add(currentPair.getKey());
+    }
+    System.out.println("Recommend vanilla User");
+    System.out.println(itemIds);
+  }
+
+  @Test
+  public void recommendMvpUser() throws Exception {
+    AntGraph antGraph = new AntGraph("user_data.csv");
+    OccurrenceBasedPairComparator occurrenceBasedPairComparator = new OccurrenceBasedPairComparator(antGraph.getItemMap());
+    AntColonyRecommender antColonyRecommender = new AntColonyRecommender(occurrenceBasedPairComparator, antGraph);
+    List<String> currentCart = new ArrayList<String>(Arrays.asList(
+            "55330", "42584", "54505", "54059", "43526", "40481", "41100", "52697", "61291", "57084", "51398", "53079", "43708", "43655"));
+    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommendMvp(currentCart, 10);
+    List<String> itemIds = new ArrayList<String>();
+    Iterator<Pair<String, Integer>> recomIterator = recommendedList.iterator();
+    while (recomIterator.hasNext()) {
+      Pair<String, Integer> currentPair = recomIterator.next();
+      itemIds.add(currentPair.getKey());
+    }
+    System.out.println("Recommend MVP User");
+    System.out.println(itemIds);
+  }
+
+  @Test
+  public void recommendItemUser() throws Exception {
+    AntGraph antGraph = new AntGraph("user_data.csv");
+    OccurrenceBasedPairComparator occurrenceBasedPairComparator = new OccurrenceBasedPairComparator(antGraph.getItemMap());
+    AntColonyRecommender antColonyRecommender = new AntColonyRecommender(occurrenceBasedPairComparator, antGraph);
+    List<String> currentCart = new ArrayList<String>(Arrays.asList(
+            "55330", "42584", "54505", "54059", "43526", "40481", "41100", "52697", "61291", "57084", "51398", "53079", "43708", "43655"));
+    List<Pair<String, Double>> recommendedList = antColonyRecommender.itemBasedRecommendations(currentCart, 10);
+    List<String> itemIds = new ArrayList<String>();
+    Iterator<Pair<String, Double>> recomIterator = recommendedList.iterator();
+    while (recomIterator.hasNext()) {
+      Pair<String, Double> currentPair = recomIterator.next();
+      itemIds.add(currentPair.getKey());
+    }
+    System.out.println("Recommend item based User");
     System.out.println(itemIds);
   }
 }

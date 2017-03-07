@@ -85,13 +85,13 @@ public class AntColonyRecommender {
     for (String item : currentCart) {
       neighborhood = getItemNeighborhood(item);
       bestInNeighborhood.clear();
-      Integer itemOccurrences = itemMap.get(item);
-      if (itemOccurrences == null) {
-        itemOccurrences = 1;
-      }
       for (String neighbor : neighborhood) {
+        Integer itemOccurrences = itemMap.get(neighbor);
+        if (itemOccurrences == null) {
+          itemOccurrences = 1;
+        }
         edgeValue = (double) getEdgeValue(item, neighbor)/itemOccurrences;
-        if (edgeValue != null) {
+        if (edgeValue != null && !currentCart.contains(neighbor) && !recommendedList.contains(neighbor)) {
           bestInNeighborhood.add(new Pair<String, Double>(neighbor, edgeValue));
         }
       }
@@ -170,7 +170,7 @@ public class AntColonyRecommender {
   }
 
   public List<String> getItemNeighborhood(String item) {
-    Set<Pair<String, String>> keys = graphMap.keySet();
+    Set<Pair<String, String>> keys = this.graphMap.keySet();
     List<String> neighbors = new ArrayList<String>();
     for (Pair<String, String> key : keys) {
       if (item.equals(key.getKey())) {
