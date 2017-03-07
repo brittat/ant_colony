@@ -9,7 +9,9 @@ import java.util.*;
  * Created by brittathornblom1 on 3/6/17.
  */
 public class AntGraph {
+  /* Maps pairs of products to the number of times they occur together in orders */
   private Map graphMap = new HashMap<String, Integer>();
+  /* Keeps track of which items have occurred and how many times */
   private Map<String, Integer> itemMap = new HashMap<String, Integer>();
 
   public AntGraph() {

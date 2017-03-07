@@ -6,16 +6,19 @@ import java.util.*;
  * Created by brittathornblom1 on 3/6/17.
  */
 public class AntColonyRecommender {
+  private Comparator comparator;
 
-  public AntColonyRecommender() {
+  public AntColonyRecommender(Comparator comparator) {
+    this.comparator = comparator;
   }
+
 
   public ArrayList recommend(AntGraph antGraph, List<String> currentCart, int numRecommend) {
     Map<String, Integer> graphMap = antGraph.getGraphMap();
     Map<String, Integer> itemMap = antGraph.getItemMap();
     List<String> itemsToCheck = new ArrayList<String>(currentCart);
     int edgeSum;
-    PriorityQueue<Pair<String, Integer>> priorityQueue = new PriorityQueue(numRecommend, new PairComparator());
+    PriorityQueue<Pair<String, Integer>> priorityQueue = new PriorityQueue(numRecommend, this.comparator);
     int addedItems = 0;
 
     for (String item : itemMap.keySet()) {

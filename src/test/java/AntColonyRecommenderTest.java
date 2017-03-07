@@ -13,24 +13,25 @@ import java.util.List;
  */
 public class AntColonyRecommenderTest {
   private AntGraph antGraph;
-  private AntColonyRecommender antColonyRecommender;
+
   @Before
   public void setUp() throws Exception {
     this.antGraph = new AntGraph("shortdataset.csv");
-    this.antColonyRecommender = new AntColonyRecommender();
   }
 
   @Test
   public void getEdgeSum() throws Exception {
     List<String> currentCart = new ArrayList<String>(Arrays.asList("1", "3"));
-    int edgeSum = this.antColonyRecommender.getEdgeSum(this.antGraph.getGraphMap(), "2", currentCart);
+    AntColonyRecommender antColonyRecommender = new AntColonyRecommender(new PairComparator());
+    int edgeSum = antColonyRecommender.getEdgeSum(this.antGraph.getGraphMap(), "2", currentCart);
     Assert.assertEquals(5, edgeSum);
   }
 
   @Test
   public void recommend() throws Exception {
+    AntColonyRecommender antColonyRecommender = new AntColonyRecommender(new PairComparator());
     List<String> currentCart = new ArrayList<String>(Arrays.asList("2"));
-    List<Pair<String, Integer>> recommendedList = this.antColonyRecommender.recommend(this.antGraph, currentCart, 2);
+    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommend(this.antGraph, currentCart, 2);
     Pair<String, Integer> firstRecommended = recommendedList.remove(0);
     Pair<String, Integer> secondRecommended = recommendedList.remove(0);
     List<String> itemIds = new ArrayList<String>(Arrays.asList(firstRecommended.getKey(), secondRecommended.getKey()));
@@ -40,6 +41,8 @@ public class AntColonyRecommenderTest {
 
   @Test
   public void recommendCatLady() throws Exception {
+    OccurrenceBasedPairComparator occurrenceBasedPairComparator = new OccurrenceBasedPairComparator(this.antGraph.getItemMap());
+    AntColonyRecommender antColonyRecommender = new AntColonyRecommender(occurrenceBasedPairComparator);
     AntGraph bigAntGraph = new AntGraph("user_data.csv");
     List<String> currentCart = new ArrayList<String>(Arrays.asList(
             "47017",
@@ -51,7 +54,7 @@ public class AntColonyRecommenderTest {
             "54674",
             "41586",
             "41983"));
-    List<Pair<String, Integer>> recommendedList = this.antColonyRecommender.recommend(bigAntGraph, currentCart, 5);
+    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommend(bigAntGraph, currentCart, 5);
     List<String> itemIds = new ArrayList<String>();
     Iterator<Pair<String, Integer>> recomIterator = recommendedList.iterator();
     while (recomIterator.hasNext()) {
@@ -60,4 +63,28 @@ public class AntColonyRecommenderTest {
     }
     System.out.println(itemIds);
   }
+
+  @Test
+  public void recommendBbq() throws Exception {
+    AntGraph antGraph = new AntGraph("user_data.csv");
+    OccurrenceBasedPairComparator occurrenceBasedPairComparator = new OccurrenceBasedPairComparator(antGraph.getItemMap());
+    AntColonyRecommender antColonyRecommender = new AntColonyRecommender(occurrenceBasedPairComparator);
+    AntGraph bigAntGraph = new AntGraph("user_data.csv");
+    List<String> currentCart = new ArrayList<String>(Arrays.asList(
+            "43556",
+            "61722",
+            "52389",
+            "53477",
+            "61529",
+            "61465" ));
+    List<Pair<String, Integer>> recommendedList = antColonyRecommender.recommend(bigAntGraph, currentCart, 5);
+    List<String> itemIds = new ArrayList<String>();
+    Iterator<Pair<String, Integer>> recomIterator = recommendedList.iterator();
+    while (recomIterator.hasNext()) {
+      Pair<String, Integer> currentPair = recomIterator.next();
+      itemIds.add(currentPair.getKey());
+    }
+    System.out.println(itemIds);
+  }
+
 }
