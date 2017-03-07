@@ -18,7 +18,7 @@ build/classes/main/GraphUtilities.class
 build/classes/test/GraphUtilitiesTest.class
 .idea/misc.xml
 .idea/modules.xml
-build/classes/main/PairComparator.class
+build/classes/main/PairDoubleComparator.class
 .idea/copyright/profiles_settings.xml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/inspectionProfiles/Project_Default.xml

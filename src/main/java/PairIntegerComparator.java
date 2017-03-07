@@ -5,9 +5,9 @@ import java.util.Comparator;
 /**
  * Created by brittathornblom1 on 3/6/17.
  */
-public class PairComparator implements Comparator<Pair<String, Integer>> {
+public class PairIntegerComparator implements Comparator<Pair<String, Integer>> {
 
-  public PairComparator() {
+  public PairIntegerComparator() {
   }
 
   public int compare(Pair<String, Integer> o1, Pair<String, Integer> o2) {

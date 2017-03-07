@@ -76,7 +76,7 @@ public class AntGraph {
 
   public void addToEdge(String firstItem, String secondItem) {
     Pair<String, String> edgeKey = GraphUtilities.getGraphKeyPair(firstItem, secondItem);
-    Integer currentEdge = (Integer) graphMap.get(edgeKey);
+    Integer currentEdge = graphMap.get(edgeKey);
     if (currentEdge == null) {
       graphMap.put(edgeKey, 1);
     } else {

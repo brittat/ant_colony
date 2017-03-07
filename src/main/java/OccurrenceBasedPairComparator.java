@@ -6,18 +6,26 @@ import java.util.Map;
 /**
  * Created by brittathornblom1 on 3/7/17.
  */
-public class OccurrenceBasedPairComparator implements Comparator<Pair<String, Integer>> {
+public class OccurrenceBasedPairComparator implements Comparator<Pair<String, Double>> {
   private Map<String, Integer> itemMap;
 
   public OccurrenceBasedPairComparator(Map<String, Integer> itemMap) {
     this.itemMap = itemMap;
   }
 
-  public int compare(Pair<String, Integer> o1, Pair<String, Integer> o2) {
-    Integer firstValue = o1.getValue();
+  public int compare(Pair<String, Double> o1, Pair<String, Double> o2) {
+    Double firstValue = o1.getValue();
+    Double secondValue = o2.getValue();
     Integer firstOccurrences = this.itemMap.get(o1.getKey());
-    Integer secondValue = o2.getValue();
     Integer secondOccurrences = this.itemMap.get(o2.getKey());
+
+    if (firstOccurrences == null) {
+      if (secondOccurrences == null) {
+        return 0;
+      }
+    } else {
+      return -1;
+    }
     int returnInt;
 
 
